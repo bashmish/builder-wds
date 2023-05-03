@@ -1,0 +1,20 @@
+{
+  // TODO: copy of https://github.com/modernweb-dev/web/blob/master/tsconfig.node-base.json to be able to move to that monorepo in the future
+  "compilerOptions": {
+    "target": "ES2017",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "downlevelIteration": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "typeRoots": ["@types", "./types"],
+    "types": ["node", "mocha", "chai"],
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["DOM", "DOM.Iterable", "ES6", "ES2017", "ES2019.array", "ScriptHost"]
+  },
+  "include": ["src/**/*"]
+}
