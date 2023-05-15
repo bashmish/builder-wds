@@ -1,6 +1,7 @@
 import rollupAliasPlugin from '@rollup/plugin-alias';
 import rollupCommonjsPlugin from '@rollup/plugin-commonjs';
 import rollupJsonPlugin from '@rollup/plugin-json';
+import { globals } from '@storybook/preview/globals';
 import type { Builder } from '@storybook/types';
 import { DevServerConfig, startDevServer } from '@web/dev-server';
 import type { DevServer } from '@web/dev-server-core';
@@ -81,20 +82,4 @@ export const start: WdsBuilder['start'] = async ({
   } catch (e) {
     console.warn('unable to start WDS server');
   }
-};
-
-// taken from https://github.com/storybookjs/storybook/blob/v7.0.9/code/lib/preview/src/globals/types.ts
-// Here we map the name of a module to their NAME in the global scope.
-const globals = {
-  '@storybook/addons': '__STORYBOOK_MODULE_ADDONS__',
-  '@storybook/channel-postmessage': '__STORYBOOK_MODULE_CHANNEL_POSTMESSAGE__',
-  '@storybook/channel-websocket': '__STORYBOOK_MODULE_CHANNEL_WEBSOCKET__',
-  '@storybook/channels': '__STORYBOOK_MODULE_CHANNELS__',
-  '@storybook/client-api': '__STORYBOOK_MODULE_CLIENT_API__',
-  '@storybook/client-logger': '__STORYBOOK_MODULE_CLIENT_LOGGER__',
-  '@storybook/core-client': '__STORYBOOK_MODULE_CORE_CLIENT__',
-  '@storybook/core-events': '__STORYBOOK_MODULE_CORE_EVENTS__',
-  '@storybook/preview-web': '__STORYBOOK_MODULE_PREVIEW_WEB__',
-  '@storybook/preview-api': '__STORYBOOK_MODULE_PREVIEW_API__',
-  '@storybook/store': '__STORYBOOK_MODULE_STORE__',
 };
