@@ -1,5 +1,6 @@
 import { normalizeStories } from '@storybook/core-common';
 import type { CoreConfig, Options } from '@storybook/types';
+import { virtualAppPath } from './virtual-paths';
 
 export type PreviewHtml = string | undefined;
 
@@ -36,5 +37,6 @@ export async function transformIframeHtml(
       .replace(`'[SERVER_CHANNEL_URL HERE]'`, JSON.stringify(serverChannelUrl))
       .replace('<!-- [HEAD HTML SNIPPET HERE] -->', headHtmlSnippet || '')
       .replace('<!-- [BODY HTML SNIPPET HERE] -->', bodyHtmlSnippet || '')
+      .replace(`[APP MODULE SRC HERE]`, virtualAppPath)
   );
 }
