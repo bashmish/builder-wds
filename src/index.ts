@@ -11,6 +11,7 @@ import { dirname, join } from 'path';
 import rollupExternalGlobalsPlugin from 'rollup-plugin-external-globals';
 import { koaToExpress } from './koa-to-express';
 import { storybookBuilderPlugin } from './storybook-builder-plugin';
+import detectFreePort from 'detect-port';
 
 const aliasPlugin = fromRollup(rollupAliasPlugin);
 const commonjsPlugin = fromRollup(rollupCommonjsPlugin);
@@ -49,6 +50,10 @@ export const start: WdsBuilder['start'] = async ({
     express.static(previewDirOrigin, { immutable: true, maxAge: '5m' }),
   );
 
+
+  // @ts-ignore detectFreePort works without number but type is incorrect
+  const freePort = await detectFreePort();
+
   try {
     wdsServer = await startDevServer({
       // we should not read the local wds config, wdsFinal hook can be used instead in the storybook config
@@ -56,8 +61,8 @@ export const start: WdsBuilder['start'] = async ({
       readCliArgs: false,
       autoExitProcess: false,
       config: {
-        // TODO: do not hardcode port
-        port: 3003,
+        // @ts-ignore
+        port: freePort,
         nodeResolve: true,
         mimeTypes: {
           '**/*.json': 'js',
