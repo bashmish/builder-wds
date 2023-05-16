@@ -50,7 +50,8 @@ export const start: WdsBuilder['start'] = async ({
   );
 
 
-  const freePort = await detectFreePort(0);
+  // @ts-ignore detectFreePort works without number but type is incorrect
+  const freePort = await detectFreePort();
 
   try {
     wdsServer = await startDevServer({
@@ -59,6 +60,7 @@ export const start: WdsBuilder['start'] = async ({
       readCliArgs: false,
       autoExitProcess: false,
       config: {
+        // @ts-ignore
         port: freePort,
         nodeResolve: true,
         mimeTypes: {
