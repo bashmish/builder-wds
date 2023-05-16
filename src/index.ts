@@ -50,7 +50,7 @@ export const start: WdsBuilder['start'] = async ({
   );
 
 
-  const freePort = await detectFreePort(3002);
+  const freePort = await detectFreePort(0);
 
   try {
     wdsServer = await startDevServer({
