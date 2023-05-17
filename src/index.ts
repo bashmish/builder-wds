@@ -57,8 +57,46 @@ export const start: WdsBuilder['start'] = async ({
 
   const env = await options.presets.apply<Record<string, string>>('env');
 
+  // TODO: remove when fixed https://github.com/DefinitelyTyped/DefinitelyTyped/pull/65510
   // @ts-ignore detectFreePort works without number but type is incorrect
-  const freePort = await detectFreePort();
+  const freePort: number = await detectFreePort();
+
+  const wdsDefaultConfig: DevServerConfig = {
+    port: freePort,
+    nodeResolve: true,
+    mimeTypes: {
+      '**/*.json': 'js',
+    },
+    plugins: [
+      aliasPlugin({
+        entries: {
+          assert: 'browser-assert',
+          process: 'process/browser.js',
+        },
+      }),
+      storybookBuilderPlugin(options),
+      replacePlugin({
+        // covers known "process.env.*" values and helps to remove dev code from production build
+        ...stringifyProcessEnvs(env),
+      }),
+      externalGlobalsPlugin(globals),
+      commonjsPlugin({
+        requireReturnsDefault: 'preferred',
+      }),
+      jsonPlugin(),
+      injectPlugin({
+        preventAssignment: true,
+        // covers usages of "process" other than known "process.env.*" values
+        process: 'process',
+      }),
+    ],
+  };
+
+  const wdsFinalConfig = await options.presets.apply<DevServerConfig>(
+    'wdsFinal',
+    wdsDefaultConfig,
+    options,
+  );
 
   try {
     wdsServer = await startDevServer({
@@ -66,37 +104,7 @@ export const start: WdsBuilder['start'] = async ({
       readFileConfig: false,
       readCliArgs: false,
       autoExitProcess: false,
-      config: {
-        // @ts-ignore
-        port: freePort,
-        nodeResolve: true,
-        mimeTypes: {
-          '**/*.json': 'js',
-        },
-        plugins: [
-          aliasPlugin({
-            entries: {
-              assert: 'browser-assert',
-              process: 'process/browser.js',
-            },
-          }),
-          storybookBuilderPlugin(options),
-          replacePlugin({
-            // covers known "process.env.*" values and helps to remove dev code from production build
-            ...stringifyProcessEnvs(env),
-          }),
-          externalGlobalsPlugin(globals),
-          commonjsPlugin({
-            requireReturnsDefault: 'preferred',
-          }),
-          jsonPlugin(),
-          injectPlugin({
-            preventAssignment: true,
-            // covers usages of "process" other than known "process.env.*" values
-            process: 'process',
-          }),
-        ],
-      },
+      config: wdsFinalConfig,
     });
     // TODO: consider using proxy instead of middleware
     storybookRouter.use(koaToExpress(wdsServer.koaApp));
