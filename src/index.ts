@@ -1,9 +1,3 @@
-import rollupAliasPlugin from '@rollup/plugin-alias';
-import rollupCommonjsPlugin from '@rollup/plugin-commonjs';
-import rollupInjectPlugin from '@rollup/plugin-inject';
-import rollupJsonPlugin from '@rollup/plugin-json';
-import rollupReplacePlugin from '@rollup/plugin-replace';
-import { stringifyProcessEnvs } from '@storybook/core-common';
 import { globals } from '@storybook/preview/globals';
 import type { Builder, Options, StorybookConfig as StorybookConfigBase } from '@storybook/types';
 import { DevServerConfig, mergeConfigs, startDevServer } from '@web/dev-server';
@@ -11,18 +5,15 @@ import type { DevServer } from '@web/dev-server-core';
 import { fromRollup } from '@web/dev-server-rollup';
 import detectFreePort from 'detect-port';
 import express from 'express';
-import { dirname, join } from 'path';
+import { join, resolve } from 'path';
 import rollupExternalGlobalsPlugin from 'rollup-plugin-external-globals';
+import { getNodeModuleDir } from './get-node-module-dir';
 import { koaToExpress } from './koa-to-express';
+import { PREBUNDLED_MODULES_DIR, prebundleModulesPlugin } from './prebundle-modules-plugin';
 import { readFileConfig } from './read-file-config';
 import { storybookBuilderPlugin } from './storybook-builder-plugin';
 
-const aliasPlugin = fromRollup(rollupAliasPlugin);
-const commonjsPlugin = fromRollup(rollupCommonjsPlugin);
 const externalGlobalsPlugin = fromRollup(rollupExternalGlobalsPlugin);
-const injectPlugin = fromRollup(rollupInjectPlugin);
-const jsonPlugin = fromRollup(rollupJsonPlugin);
-const replacePlugin = fromRollup(rollupReplacePlugin);
 
 export type StorybookConfigWds = StorybookConfigBase & {
   wdsFinal: (
@@ -56,11 +47,14 @@ export const start: WdsBuilder['start'] = async ({
   router: storybookRouter,
   server: storybookServer,
 }) => {
-  const previewResolvedDir = dirname(require.resolve('@storybook/preview/package.json'));
-  const previewDirOrigin = join(previewResolvedDir, 'dist');
+  const previewDirOrigin = join(getNodeModuleDir('@storybook/preview'), 'dist');
   storybookRouter.use(
     '/sb-preview',
     express.static(previewDirOrigin, { immutable: true, maxAge: '5m' }),
+  );
+  storybookRouter.use(
+    `/${PREBUNDLED_MODULES_DIR}`,
+    express.static(resolve(`./${PREBUNDLED_MODULES_DIR}`)),
   );
 
   const env = await options.presets.apply<Record<string, string>>('env');
@@ -71,31 +65,10 @@ export const start: WdsBuilder['start'] = async ({
 
   const wdsStorybookConfig: DevServerConfig = {
     nodeResolve: true,
-    mimeTypes: {
-      '**/*.json': 'js',
-    },
     plugins: [
-      aliasPlugin({
-        entries: {
-          assert: 'browser-assert',
-          process: 'process/browser.js',
-        },
-      }),
+      prebundleModulesPlugin(env),
       storybookBuilderPlugin(options),
-      replacePlugin({
-        // covers known "process.env.*" values and helps to remove dev code from production build
-        ...stringifyProcessEnvs(env),
-      }),
       externalGlobalsPlugin(globals),
-      commonjsPlugin({
-        requireReturnsDefault: 'preferred',
-      }),
-      jsonPlugin(),
-      injectPlugin({
-        preventAssignment: true,
-        // covers usages of "process" other than known "process.env.*" values
-        process: 'process',
-      }),
     ],
   };
 
