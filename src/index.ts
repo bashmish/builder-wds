@@ -5,8 +5,8 @@ import rollupJsonPlugin from '@rollup/plugin-json';
 import rollupReplacePlugin from '@rollup/plugin-replace';
 import { stringifyProcessEnvs } from '@storybook/core-common';
 import { globals } from '@storybook/preview/globals';
-import type { Builder } from '@storybook/types';
-import { DevServerConfig, startDevServer } from '@web/dev-server';
+import type { Builder, Options, StorybookConfig as StorybookConfigBase } from '@storybook/types';
+import { DevServerConfig, mergeConfigs, startDevServer } from '@web/dev-server';
 import type { DevServer } from '@web/dev-server-core';
 import { fromRollup } from '@web/dev-server-rollup';
 import detectFreePort from 'detect-port';
@@ -22,6 +22,13 @@ const externalGlobalsPlugin = fromRollup(rollupExternalGlobalsPlugin);
 const injectPlugin = fromRollup(rollupInjectPlugin);
 const jsonPlugin = fromRollup(rollupJsonPlugin);
 const replacePlugin = fromRollup(rollupReplacePlugin);
+
+export type StorybookConfigWds = StorybookConfigBase & {
+  wdsFinal: (
+    config: DevServerConfig,
+    options: Options,
+  ) => DevServerConfig | Promise<DevServerConfig>;
+};
 
 // Storybook's Stats are optional Webpack related property
 type WdsStats = {
