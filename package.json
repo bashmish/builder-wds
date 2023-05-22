@@ -1,9 +1,10 @@
 {
-  "name": "builder-wds",
+  "name": "storybook-builder-wds",
   "version": "0.0.1",
   "description": "Storybook builder powered by web-dev-server",
   "license": "MIT",
-  "author": "",
+  "author": "Mikhail Bashkirov",
+  "repository": "https://github.com/bashmish/storybook-builder-wds",
   "main": "dist/index.js",
   "type": "commonjs",
   "engines": {
@@ -12,7 +13,7 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "test": "// TODO: how to test this?"
+    "test": "echo TODO: how to test this?"
   },
   "dependencies": {
     "@rollup/plugin-alias": "^5.0.0",
