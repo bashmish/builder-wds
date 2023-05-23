@@ -106,11 +106,23 @@ export const start: WdsBuilder['start'] = async ({
     mergeConfigs(wdsUserConfig, wdsStorybookConfig, {
       // force using dynamically allocated port
       port: freePort,
-      // this might conflict with storybook's own open and ideally should be controlled by the storybook start command
+      // reset local config "open" as it should not be used for storybook specific configuration
       open: false,
     }),
     options,
   );
+
+  // if "wdsFinal" added "open" then rewrite it to open on storybook host (unless it's a full URL)
+  if (
+    wdsFinalConfig.open &&
+    typeof wdsFinalConfig.open === 'string' &&
+    !wdsFinalConfig.open.match(/^https?:\/\//)
+  ) {
+    const protocol = options.https ? 'https' : 'http';
+    const host = options.host || 'localhost';
+    const port = options.port;
+    wdsFinalConfig.open = `${protocol}://${host}:${port}${wdsFinalConfig.open}`;
+  }
 
   try {
     wdsServer = await startDevServer({
