@@ -14,6 +14,7 @@ import express from 'express';
 import { dirname, join } from 'path';
 import rollupExternalGlobalsPlugin from 'rollup-plugin-external-globals';
 import { koaToExpress } from './koa-to-express';
+import { readFileConfig } from './read-file-config';
 import { storybookBuilderPlugin } from './storybook-builder-plugin';
 
 const aliasPlugin = fromRollup(rollupAliasPlugin);
@@ -68,8 +69,7 @@ export const start: WdsBuilder['start'] = async ({
   // @ts-ignore detectFreePort works without number but type is incorrect
   const freePort: number = await detectFreePort();
 
-  const wdsDefaultConfig: DevServerConfig = {
-    port: freePort,
+  const wdsStorybookConfig: DevServerConfig = {
     nodeResolve: true,
     mimeTypes: {
       '**/*.json': 'js',
@@ -99,15 +99,22 @@ export const start: WdsBuilder['start'] = async ({
     ],
   };
 
+  const wdsUserConfig = await readFileConfig();
+
   const wdsFinalConfig = await options.presets.apply<DevServerConfig>(
     'wdsFinal',
-    wdsDefaultConfig,
+    mergeConfigs(wdsUserConfig, wdsStorybookConfig, {
+      // force using dynamically allocated port
+      port: freePort,
+      // this might conflict with storybook's own open and ideally should be controlled by the storybook start command
+      open: false,
+    }),
     options,
   );
 
   try {
     wdsServer = await startDevServer({
-      // we should not read the local wds config, wdsFinal hook can be used instead in the storybook config
+      // we load and merge configs manually
       readFileConfig: false,
       readCliArgs: false,
       autoExitProcess: false,
