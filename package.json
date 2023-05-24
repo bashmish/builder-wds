@@ -1,7 +1,7 @@
 {
   "name": "storybook-builder-wds",
   "version": "0.0.1",
-  "description": "Storybook builder powered by web-dev-server",
+  "description": "Storybook builder powered by @web/dev-server",
   "license": "MIT",
   "author": "",
   "main": "dist/index.js",
