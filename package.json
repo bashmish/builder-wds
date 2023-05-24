@@ -11,8 +11,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "build:watch": "tsc --watch",
-    "test": "// TODO: how to test this?"
+    "build:watch": "tsc --watch"
   },
   "dependencies": {
     "@rollup/plugin-alias": "^5.0.0",
