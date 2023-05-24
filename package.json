@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Storybook builder powered by @web/dev-server",
   "license": "MIT",
+  "repository": "https://github.com/bashmish/storybook-builder-wds",
   "author": "",
   "main": "dist/index.js",
   "type": "commonjs",
