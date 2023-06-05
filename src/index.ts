@@ -59,8 +59,6 @@ export const start: WdsBuilder['start'] = async ({
 
   const env = await options.presets.apply<Record<string, string>>('env');
 
-  // TODO: remove when fixed https://github.com/DefinitelyTyped/DefinitelyTyped/pull/65510
-  // @ts-ignore detectFreePort works without number but type is incorrect
   const freePort: number = await detectFreePort();
 
   const wdsStorybookConfig: DevServerConfig = {
