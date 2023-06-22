@@ -23,6 +23,7 @@
     "@web/dev-server": "^0.2.1",
     "@web/dev-server-core": "^0.5.1",
     "@web/dev-server-rollup": "^0.5.0",
+    "@web/rollup-plugin-html": "^2.0.0",
     "browser-assert": "^1.2.1",
     "detect-port": "^1.5.1",
     "es-module-lexer": "^1.2.1",
@@ -33,6 +34,7 @@
     "lodash-es": "^4.17.21",
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
+    "rollup": "^3.25.1",
     "rollup-plugin-external-globals": "^0.7.3",
     "slash": "^5.1.0"
   },

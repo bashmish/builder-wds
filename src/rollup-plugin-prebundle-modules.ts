@@ -1,24 +1,27 @@
 import esbuildCommonjsPlugin from '@chialab/esbuild-plugin-commonjs';
 import { stringifyProcessEnvs } from '@storybook/core-common';
-import type { Plugin } from '@web/dev-server-core';
 import { build } from 'esbuild';
 import { join } from 'path';
+import type { Plugin } from 'rollup';
 import { getNodeModuleDir } from './get-node-module-dir';
 
 export const PREBUNDLED_MODULES_DIR = 'node_modules/.prebundled_modules';
 
-export function prebundleModulesPlugin(env: Record<string, string>): Plugin {
+export function rollupPluginPrebundleModules(env: Record<string, string>): Plugin {
   const modulePaths: Record<string, string> = {};
 
   return {
-    name: 'prebundle-modules',
+    name: 'rollup-plugin-prebundle-modules',
 
-    async serverStart() {
+    async buildStart() {
       const modules = getModules();
 
       for (const module of modules) {
-        modulePaths[module] =
-          '/' + join(PREBUNDLED_MODULES_DIR, module.endsWith('.js') ? module : `${module}.js`);
+        modulePaths[module] = join(
+          process.cwd(),
+          PREBUNDLED_MODULES_DIR,
+          module.endsWith('.js') ? module : `${module}.js`,
+        );
       }
 
       await build({
@@ -40,7 +43,7 @@ export function prebundleModulesPlugin(env: Record<string, string>): Plugin {
       });
     },
 
-    async resolveImport({ source }) {
+    async resolveId(source) {
       return modulePaths[source];
     },
   };

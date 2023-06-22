@@ -58,7 +58,14 @@
     <!-- [BODY HTML SNIPPET HERE] -->
     <div id="storybook-root"></div>
     <div id="storybook-docs"></div>
-    <script type="module" src="./sb-preview/runtime.js"></script>
-    <script type="module" src="[APP MODULE SRC HERE]"></script>
+    <script type="module">
+      // has to be a module syntax import to be externalized
+      // TODO: check why WDS doesn't allow <script src> to be externalized
+      import './sb-preview/runtime.js';
+
+      // has to be a module syntax import to be resolved correctly as a virtual module
+      // TODO: check why WDS doesn't allow <script src> to be resolved (at least in DEV)
+      import '[APP MODULE SRC HERE]';
+    </script>
   </body>
 </html>

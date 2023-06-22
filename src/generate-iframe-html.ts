@@ -1,13 +1,15 @@
 import { normalizeStories } from '@storybook/core-common';
 import type { CoreConfig, Options } from '@storybook/types';
+import { readFile } from 'fs-extra';
 import { virtualAppPath } from './virtual-paths';
 
 export type PreviewHtml = string | undefined;
 
-export async function transformIframeHtml(
-  iframeHtmlTemplate: string,
-  options: Options,
-): Promise<string> {
+export async function generateIframeHtml(options: Options): Promise<string> {
+  const iframeHtmlTemplate = await readFile(
+    require.resolve('../static/iframe-template.html'),
+    'utf-8',
+  );
   const { configType, features, presets, serverChannelUrl } = options;
   const frameworkOptions = await presets.apply<Record<string, any> | null>('frameworkOptions');
   const headHtmlSnippet = await presets.apply<PreviewHtml>('previewHead');

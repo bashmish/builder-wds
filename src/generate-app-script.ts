@@ -1,6 +1,7 @@
 // based on https://github.com/storybookjs/storybook/blob/v7.0.9/code/lib/builder-vite/src/codegen-modern-iframe-script.ts
 
 import { loadPreviewOrConfigFile } from '@storybook/core-common';
+import { globals } from '@storybook/preview/globals';
 import type { Options, PreviewAnnotation } from '@storybook/types';
 import { processPreviewAnnotation } from './process-preview-annotation';
 import { virtualSetupAddonsPath, virtualStoriesPath } from './virtual-paths';
@@ -30,10 +31,14 @@ ${previewAnnotationURLs.map(previewAnnotation => `    import('${previewAnnotatio
 }
   `.trim();
 
+  // TODO: I think this might be not process by rollup build because they are in the virtual files?
+  // although the resolveId should work in them too, it's only transform that is disabled, right?
+
   return `
-import { composeConfigs, PreviewWeb, ClientApi } from '@storybook/preview-api';
 import '${virtualSetupAddonsPath}';
 import { importFn } from '${virtualStoriesPath}';
+
+const { composeConfigs, PreviewWeb, ClientApi } = ${globals['@storybook/preview-api']};
 
 ${getPreviewAnnotationsFunction}
 
