@@ -1,3 +1,4 @@
+import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import { globals } from '@storybook/preview/globals';
 import type { Builder, Options, StorybookConfig as StorybookConfigBase } from '@storybook/types';
 import { DevServerConfig, mergeConfigs, startDevServer } from '@web/dev-server';
@@ -8,7 +9,7 @@ import detectFreePort from 'detect-port';
 import express from 'express';
 import * as fs from 'fs-extra';
 import { join, parse, resolve } from 'path';
-import { RollupOptions, rollup } from 'rollup';
+import { OutputOptions, RollupBuild, RollupOptions, rollup } from 'rollup';
 import rollupPluginExternalGlobals from 'rollup-plugin-external-globals';
 import { generateIframeHtml } from './generate-iframe-html';
 import { getNodeModuleDir } from './get-node-module-dir';
@@ -118,30 +119,34 @@ export const start: WdsBuilder['start'] = async ({ startTime, options, router })
 export const build: WdsBuilder['build'] = async ({ options }) => {
   const env = await options.presets.apply<Record<string, string>>('env');
 
+  const rollupDefaultOutputOptions: OutputOptions = {
+    dir: options.outputDir,
+  };
+
   const rollupStorybookConfig: RollupOptions = {
-    output: { dir: options.outputDir },
+    output: rollupDefaultOutputOptions,
     external: ['./sb-preview/runtime.js'],
     plugins: [
-      // TODO: nodeResolve plugin
       rollupPluginHTML({
         input: { html: await generateIframeHtml(options), name: 'iframe.html' },
         // TODO: check if there is a better way?
         extractAssets: false,
       }),
+      rollupPluginNodeResolve(),
       rollupPluginPrebundleModules(env),
       rollupPluginStorybookBuilder(options),
       rollupPluginExternalGlobals(globals),
     ],
   };
 
-  // TODO: check "rollupConfig", is it what it used to be called in the old setup?
+  // TODO: document, also in migration (rollupConfig => rollupFinal)
   const rollupFinalConfig = await options.presets.apply<RollupOptions>(
     'rollupFinal',
     rollupStorybookConfig,
     options,
   );
 
-  const rollupBuild = rollup(rollupFinalConfig);
+  const rollupBuild = startBuild(rollupFinalConfig);
 
   const previewDirOrigin = join(getNodeModuleDir('@storybook/preview'), 'dist');
   const previewDirTarget = join(options.outputDir || '', `sb-preview`);
@@ -155,7 +160,27 @@ export const build: WdsBuilder['build'] = async ({ options }) => {
     },
   });
 
-  // TODO: check how to get outpu similar to manager:
+  // TODO: check how to get output similar to manager:
   // "info => Manager built (960 ms)"
   await Promise.all([rollupBuild, previewFiles]);
 };
+
+async function startBuild(config: RollupOptions): Promise<void> {
+  let bundle: RollupBuild | undefined;
+  try {
+    bundle = await rollup(config);
+    if (config.output) {
+      const outputOptionsArray = Array.isArray(config.output) ? config.output : [config.output];
+      for (const outputOptions of outputOptionsArray) {
+        await bundle.write(outputOptions);
+      }
+    }
+  } catch (error) {
+    // TODO: process error
+    console.error(error);
+  } finally {
+    if (bundle) {
+      bundle.close();
+    }
+  }
+}

@@ -33,7 +33,7 @@ export function rollupPluginStorybookBuilder(storybookOptions: Options): Plugin 
 
     async load(id) {
       if (id === '\0' + virtualAppPath) {
-        return generateAppScript(storybookOptions, process.cwd());
+        return generateAppScript(storybookOptions);
       }
 
       if (id === '\0' + virtualSetupAddonsPath) {

@@ -3,10 +3,9 @@
 import { loadPreviewOrConfigFile } from '@storybook/core-common';
 import { globals } from '@storybook/preview/globals';
 import type { Options, PreviewAnnotation } from '@storybook/types';
-import { processPreviewAnnotation } from './process-preview-annotation';
 import { virtualSetupAddonsPath, virtualStoriesPath } from './virtual-paths';
 
-export async function generateAppScript(options: Options, projectRoot: string) {
+export async function generateAppScript(options: Options) {
   const { presets, configDir } = options;
 
   const previewOrConfigFile = loadPreviewOrConfigFile({ configDir });
@@ -16,8 +15,8 @@ export async function generateAppScript(options: Options, projectRoot: string) {
     options,
   );
   const previewAnnotationURLs = [...previewAnnotations, previewOrConfigFile]
-    .filter(Boolean)
-    .map(path => processPreviewAnnotation(path, projectRoot));
+    .filter((path): path is PreviewAnnotation => !!path)
+    .map((path: PreviewAnnotation) => (typeof path === 'object' ? path.bare : path));
 
   // This is pulled out to a variable because it is reused in both the initial page load
   // and the HMR handler.  We don't use the hot.accept callback params because only the changed
@@ -30,9 +29,6 @@ ${previewAnnotationURLs.map(previewAnnotation => `    import('${previewAnnotatio
   return composeConfigs(configs);
 }
   `.trim();
-
-  // TODO: I think this might be not process by rollup build because they are in the virtual files?
-  // although the resolveId should work in them too, it's only transform that is disabled, right?
 
   return `
 import '${virtualSetupAddonsPath}';

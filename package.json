@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@chialab/esbuild-plugin-commonjs": "^0.17.2",
+    "@rollup/plugin-node-resolve": "^15.1.0",
     "@rollup/pluginutils": "^5.0.2",
     "@storybook/core-common": "^7.0.0",
     "@storybook/csf-tools": "^7.0.0",
