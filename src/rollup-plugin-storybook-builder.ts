@@ -5,7 +5,11 @@ import { generateSetupAddonsScript } from './generate-setup-addons-script';
 import { generateStoriesScript } from './generate-stories-script';
 import { injectExportsOrder } from './inject-exports-order';
 import { listStories } from './list-stories';
-import { virtualAppPath, virtualSetupAddonsPath, virtualStoriesPath } from './virtual-paths';
+import {
+  virtualAppFilename,
+  virtualSetupAddonsFilename,
+  virtualStoriesFilename,
+} from './virtual-file-names';
 
 export function rollupPluginStorybookBuilder(storybookOptions: Options): Plugin {
   let storyFilePaths: string[];
@@ -18,29 +22,29 @@ export function rollupPluginStorybookBuilder(storybookOptions: Options): Plugin 
     },
 
     async resolveId(source) {
-      if (source === virtualAppPath) {
-        return '\0' + source;
+      if (source === virtualAppFilename) {
+        return './' + source;
       }
 
-      if (source === virtualSetupAddonsPath) {
-        return '\0' + source;
+      if (source === virtualSetupAddonsFilename) {
+        return './' + source;
       }
 
-      if (source === virtualStoriesPath) {
-        return '\0' + source;
+      if (source === virtualStoriesFilename) {
+        return './' + source;
       }
     },
 
     async load(id) {
-      if (id === '\0' + virtualAppPath) {
+      if (id.endsWith(virtualAppFilename)) {
         return generateAppScript(storybookOptions);
       }
 
-      if (id === '\0' + virtualSetupAddonsPath) {
+      if (id.endsWith(virtualSetupAddonsFilename)) {
         return generateSetupAddonsScript();
       }
 
-      if (id === '\0' + virtualStoriesPath) {
+      if (id.endsWith(virtualStoriesFilename)) {
         return generateStoriesScript(storybookOptions);
       }
     },

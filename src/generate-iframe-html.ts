@@ -1,7 +1,7 @@
 import { normalizeStories } from '@storybook/core-common';
 import type { CoreConfig, Options } from '@storybook/types';
 import { readFile } from 'fs-extra';
-import { virtualAppPath } from './virtual-paths';
+import { virtualAppFilename } from './virtual-file-names';
 
 export type PreviewHtml = string | undefined;
 
@@ -39,6 +39,6 @@ export async function generateIframeHtml(options: Options): Promise<string> {
       .replace(`'[SERVER_CHANNEL_URL HERE]'`, JSON.stringify(serverChannelUrl))
       .replace('<!-- [HEAD HTML SNIPPET HERE] -->', headHtmlSnippet || '')
       .replace('<!-- [BODY HTML SNIPPET HERE] -->', bodyHtmlSnippet || '')
-      .replace(`[APP MODULE SRC HERE]`, virtualAppPath)
+      .replace(`[APP MODULE SRC HERE]`, virtualAppFilename)
   );
 }
