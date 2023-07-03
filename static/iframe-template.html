@@ -59,12 +59,10 @@
     <div id="storybook-root"></div>
     <div id="storybook-docs"></div>
     <script type="module">
-      // has to be a module syntax import to be externalized
-      // TODO: check why WDS doesn't allow <script src> to be externalized
+      // must be inside a script to be externalized
       import './sb-preview/runtime.js';
 
-      // has to be a module syntax import to be resolved correctly as a virtual module
-      // TODO: check why WDS doesn't allow <script src> to be resolved (at least in DEV)
+      // must be inside a script to be resolved correctly as a virtual module
       import '[APP MODULE SRC HERE]';
     </script>
   </body>

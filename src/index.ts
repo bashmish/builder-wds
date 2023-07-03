@@ -129,7 +129,7 @@ export const build: WdsBuilder['build'] = async ({ options }) => {
     plugins: [
       rollupPluginHTML({
         input: { html: await generateIframeHtml(options), name: 'iframe.html' },
-        // TODO: check if there is a better way?
+        // default assets behavior of the plugin breaks, sb-common-assets are shared between manager and preview and copied separately
         extractAssets: false,
       }),
       rollupPluginNodeResolve(),
@@ -139,7 +139,6 @@ export const build: WdsBuilder['build'] = async ({ options }) => {
     ],
   };
 
-  // TODO: document, also in migration (rollupConfig => rollupFinal)
   const rollupFinalConfig = await options.presets.apply<RollupOptions>(
     'rollupFinal',
     rollupStorybookConfig,
@@ -160,8 +159,6 @@ export const build: WdsBuilder['build'] = async ({ options }) => {
     },
   });
 
-  // TODO: check how to get output similar to manager:
-  // "info => Manager built (960 ms)"
   await Promise.all([rollupBuild, previewFiles]);
 };
 
@@ -175,9 +172,6 @@ async function startBuild(config: RollupOptions): Promise<void> {
         await bundle.write(outputOptions);
       }
     }
-  } catch (error) {
-    // TODO: process error
-    console.error(error);
   } finally {
     if (bundle) {
       bundle.close();
