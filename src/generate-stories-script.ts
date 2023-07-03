@@ -37,14 +37,14 @@ async function toImportFn(stories: string[]) {
   });
 
   return `
-    const importers = {
-      ${objectEntries.join(',\n')}
-    };
+const importers = {
+${objectEntries.join(',\n')}
+};
 
-    export async function importFn(path) {
-        return importers[path]();
-    }
-  `;
+export async function importFn(path) {
+  return importers[path]();
+}
+  `.trim();
 }
 
 /**

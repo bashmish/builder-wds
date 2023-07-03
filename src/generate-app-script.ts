@@ -22,14 +22,15 @@ export async function generateAppScript(options: Options, projectRoot: string) {
   // and the HMR handler.  We don't use the hot.accept callback params because only the changed
   // modules are provided, the rest are null.  We can just re-import everything again in that case.
   const getPreviewAnnotationsFunction = `
-  const getProjectAnnotations = async () => {
-    const configs = await Promise.all([${previewAnnotationURLs
-      .map(previewAnnotation => `import('${previewAnnotation}')`)
-      .join(',\n')}])
-    return composeConfigs(configs);
-  }`;
+const getProjectAnnotations = async () => {
+  const configs = await Promise.all([
+${previewAnnotationURLs.map(previewAnnotation => `    import('${previewAnnotation}')`).join(',\n')}
+  ]);
+  return composeConfigs(configs);
+}
+  `.trim();
 
-  const code = `
+  return `
 import { composeConfigs, PreviewWeb, ClientApi } from '@storybook/preview-api';
 import '${virtualSetupAddonsPath}';
 import { importFn } from '${virtualStoriesPath}';
@@ -42,5 +43,4 @@ window.__STORYBOOK_STORY_STORE__ = window.__STORYBOOK_STORY_STORE__ || window.__
 window.__STORYBOOK_CLIENT_API__ = window.__STORYBOOK_CLIENT_API__ || new ClientApi({ storyStore: window.__STORYBOOK_PREVIEW__.storyStore });
 window.__STORYBOOK_PREVIEW__.initialize({ importFn, getProjectAnnotations });
   `.trim();
-  return code;
 }
