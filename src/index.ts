@@ -1,4 +1,5 @@
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
+import { logger } from '@storybook/node-logger';
 import { globals } from '@storybook/preview/globals';
 import type { Builder, Options, StorybookConfig as StorybookConfigBase } from '@storybook/types';
 import { DevServerConfig, mergeConfigs, startDevServer } from '@web/dev-server';
@@ -116,7 +117,7 @@ export const start: WdsBuilder['start'] = async ({ startTime, options, router })
   };
 };
 
-export const build: WdsBuilder['build'] = async ({ options }) => {
+export const build: WdsBuilder['build'] = async ({ startTime, options }) => {
   const env = await options.presets.apply<Record<string, string>>('env');
 
   const rollupDefaultOutputOptions: OutputOptions = {
@@ -145,7 +146,26 @@ export const build: WdsBuilder['build'] = async ({ options }) => {
     options,
   );
 
-  const rollupBuild = startBuild(rollupFinalConfig);
+  const rollupBuild = (async () => {
+    logger.info('=> Building preview..');
+    let bundle: RollupBuild | undefined;
+    try {
+      bundle = await rollup(rollupFinalConfig);
+      if (rollupFinalConfig.output) {
+        const outputOptionsArray = Array.isArray(rollupFinalConfig.output)
+          ? rollupFinalConfig.output
+          : [rollupFinalConfig.output];
+        for (const outputOptions of outputOptionsArray) {
+          await bundle.write(outputOptions);
+        }
+      }
+    } finally {
+      if (bundle) {
+        bundle.close();
+      }
+    }
+    logger.trace({ message: '=> Preview built', time: process.hrtime(startTime) });
+  })();
 
   const previewDirOrigin = join(getNodeModuleDir('@storybook/preview'), 'dist');
   const previewDirTarget = join(options.outputDir || '', `sb-preview`);
@@ -161,20 +181,3 @@ export const build: WdsBuilder['build'] = async ({ options }) => {
 
   await Promise.all([rollupBuild, previewFiles]);
 };
-
-async function startBuild(config: RollupOptions): Promise<void> {
-  let bundle: RollupBuild | undefined;
-  try {
-    bundle = await rollup(config);
-    if (config.output) {
-      const outputOptionsArray = Array.isArray(config.output) ? config.output : [config.output];
-      for (const outputOptions of outputOptionsArray) {
-        await bundle.write(outputOptions);
-      }
-    }
-  } finally {
-    if (bundle) {
-      bundle.close();
-    }
-  }
-}
