@@ -31,31 +31,14 @@ export type WdsBuilder = Builder<DevServerConfig, WdsStats>;
 
 let wdsServer: DevServer;
 
-export const bail: WdsBuilder['bail'] = async (e?: Error): Promise<void> => {
-  try {
-    await wdsServer.stop();
-  } catch (err) {
-    console.warn('unable to stop WDS server');
-  }
-
-  throw e;
+export const bail: WdsBuilder['bail'] = async () => {
+  await wdsServer?.stop();
 };
 
-export const start: WdsBuilder['start'] = async ({
-  startTime,
-  options,
-  router: storybookRouter,
-  server: storybookServer,
-}) => {
+export const start: WdsBuilder['start'] = async ({ startTime, options, router }) => {
   const previewDirOrigin = join(getNodeModuleDir('@storybook/preview'), 'dist');
-  storybookRouter.use(
-    '/sb-preview',
-    express.static(previewDirOrigin, { immutable: true, maxAge: '5m' }),
-  );
-  storybookRouter.use(
-    `/${PREBUNDLED_MODULES_DIR}`,
-    express.static(resolve(`./${PREBUNDLED_MODULES_DIR}`)),
-  );
+  router.use('/sb-preview', express.static(previewDirOrigin, { immutable: true, maxAge: '5m' }));
+  router.use(`/${PREBUNDLED_MODULES_DIR}`, express.static(resolve(`./${PREBUNDLED_MODULES_DIR}`)));
 
   const env = await options.presets.apply<Record<string, string>>('env');
 
@@ -95,17 +78,20 @@ export const start: WdsBuilder['start'] = async ({
     wdsFinalConfig.open = `${protocol}://${host}:${port}${wdsFinalConfig.open}`;
   }
 
-  try {
-    wdsServer = await startDevServer({
-      // we load and merge configs manually
-      readFileConfig: false,
-      readCliArgs: false,
-      autoExitProcess: false,
-      config: wdsFinalConfig,
-    });
-    // TODO: consider using proxy instead of middleware
-    storybookRouter.use(koaToExpress(wdsServer.koaApp));
-  } catch (e) {
-    console.warn('unable to start WDS server');
-  }
+  wdsServer = await startDevServer({
+    // we load and merge configs manually
+    readFileConfig: false,
+    readCliArgs: false,
+    autoExitProcess: false,
+    config: wdsFinalConfig,
+  });
+
+  // TODO: consider using proxy instead of middleware
+  router.use(koaToExpress(wdsServer.koaApp));
+
+  return {
+    bail,
+    stats: { toJson: () => null },
+    totalTime: process.hrtime(startTime),
+  };
 };
