@@ -1,6 +1,6 @@
 {
   "name": "storybook-builder-wds",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Storybook builder powered by @web/dev-server",
   "license": "MIT",
   "repository": "https://github.com/bashmish/storybook-builder-wds",
