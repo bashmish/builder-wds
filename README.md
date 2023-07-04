@@ -55,22 +55,19 @@ export default config;
 The `storybook-builder-wds` aims at compatibility with standard storybook features, e.g. `.storybook/preview.js`.
 Follow the [official storybook docs](https://storybook.js.org/) for the configuration options.
 
-### Configuring @web/dev-server
+### Configuring dev server
 
-The builder comes with a default `@web/dev-server` configuration which adheres to browser standards and supports essential plugins of the storybook ecosystem.
+The builder implements the `storybook dev` command and comes with a default `@web/dev-server` configuration which adheres to browser standards and supports essential plugins of the storybook ecosystem.
 
 When storybook is loaded, the default config gets automatically merged with the project configuration file (`web-dev-server.config.{mjs,cjs,js}`) if present.
 This is needed to ensure that the same configuration is used for application, feature or design system you are building.
 
 #### wdsFinal hook
 
-Sometimes you might need to add a storybook specific configuration.
-There is `wdsFinal` hook for that.
+Sometimes you might need to add storybook specific configuration for dev server, you can use the `wdsFinal` hook for this.
 
 ```js
 // .storybook/main.js
-import { mergeConfigs } from '@web/dev-server';
-
 /** @type { import('storybook-builder-wds').StorybookConfigWds } */
 const config = {
   ...
@@ -78,17 +75,55 @@ const config = {
     builder: 'storybook-builder-wds',
   },
   async wdsFinal(config) {
-    return mergeConfigs(config, {
-      // add storybook specific configuration for @web/dev-server
-      // e.g. "open" to go to a custom URL in the browser when server has started
-      open: '/custom-path',
-    });
+    // add storybook specific configuration for @web/dev-server
+    // e.g. "open" to go to a custom URL in the browser when server has started
+    config.open = '/custom-path';
+    return config;
   },
   ...
 };
 
 export default config;
 ```
+
+The `config` parameter is a `@web/dev-server` config, make sure to use appropriate options and @web/dev-server plugins.
+When using rollup plugins make sure to [convert them to @web/dev-server ones](https://modern-web.dev/docs/dev-server/plugins/rollup/).
+
+### Configuring static build
+
+The builder implements the `storybook build` command and comes with a default `rollup` configuration which adheres to browser standards and supports essential plugins of the storybook ecosystem.
+
+#### rollupFinal hook
+
+Sometimes you might need to add some extra configuration for the static build, you can use the `rollupFinal` hook for this.
+
+```js
+// .storybook/main.js
+import polyfillsLoader from '@web/rollup-plugin-polyfills-loader';
+
+/** @type { import('storybook-builder-wds').StorybookConfigWds } */
+const config = {
+  ...
+  core: {
+    builder: 'storybook-builder-wds',
+  },
+  async rollupFinal(config) {
+    // add extra configuration for rollup
+    // e.g. a new plugin
+    config.plugins.push(polyfillsLoader({
+      polyfills: {
+        esModuleShims: true,
+      },
+    }));
+    return config;
+  },
+  ...
+};
+
+export default config;
+```
+
+The `config` parameter is a `rollup` config, make sure to use appropriate options and rollup plugins.
 
 ## Migration
 
@@ -152,6 +187,10 @@ const config = {
 export default config;
 ```
 
+### Rename "rollupConfig" => "rollupFinal"
+
+For consistency with other similar hooks in the storybook ecosystem, including this builder's own `wdsFinal`, the rollup hook was renamed to `rollupFinal`.
+
 ### CLI
 
 `@web/dev-server-storybook` was a plugin of `@web/dev-server`, therefore you used to run storybook via `wds` CLI.
@@ -167,7 +206,7 @@ Typically you'll use `storybook dev` and `storybook build` to start the dev serv
   "scripts": {
     ...
     "storybook:start": "storybook dev -p 6006",
-    "storybook:build": "rm -rf demo-storybook && storybook build --output-dir demo-storybook",
+    "storybook:build": "storybook build --output-dir demo-storybook",
     ...
   },
   ...

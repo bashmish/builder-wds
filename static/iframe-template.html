@@ -58,7 +58,12 @@
     <!-- [BODY HTML SNIPPET HERE] -->
     <div id="storybook-root"></div>
     <div id="storybook-docs"></div>
-    <script type="module" src="./sb-preview/runtime.js"></script>
-    <script type="module" src="[APP MODULE SRC HERE]"></script>
+    <script type="module">
+      // must be inside a script to be externalized
+      import './sb-preview/runtime.js';
+
+      // must be inside a script to be resolved
+      import '[APP MODULE SRC HERE]';
+    </script>
   </body>
 </html>

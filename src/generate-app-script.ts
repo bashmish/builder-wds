@@ -2,10 +2,9 @@
 
 import { loadPreviewOrConfigFile } from '@storybook/core-common';
 import type { Options, PreviewAnnotation } from '@storybook/types';
-import { processPreviewAnnotation } from './process-preview-annotation';
-import { virtualSetupAddonsPath, virtualStoriesPath } from './virtual-paths';
+import { virtualSetupAddonsFilename, virtualStoriesFilename } from './virtual-file-names';
 
-export async function generateAppScript(options: Options, projectRoot: string) {
+export async function generateAppScript(options: Options) {
   const { presets, configDir } = options;
 
   const previewOrConfigFile = loadPreviewOrConfigFile({ configDir });
@@ -15,8 +14,8 @@ export async function generateAppScript(options: Options, projectRoot: string) {
     options,
   );
   const previewAnnotationURLs = [...previewAnnotations, previewOrConfigFile]
-    .filter(Boolean)
-    .map(path => processPreviewAnnotation(path, projectRoot));
+    .filter((path): path is PreviewAnnotation => !!path)
+    .map((path: PreviewAnnotation) => (typeof path === 'object' ? path.bare : path));
 
   // This is pulled out to a variable because it is reused in both the initial page load
   // and the HMR handler.  We don't use the hot.accept callback params because only the changed
@@ -32,8 +31,8 @@ ${previewAnnotationURLs.map(previewAnnotation => `    import('${previewAnnotatio
 
   return `
 import { composeConfigs, PreviewWeb, ClientApi } from '@storybook/preview-api';
-import '${virtualSetupAddonsPath}';
-import { importFn } from '${virtualStoriesPath}';
+import '${virtualSetupAddonsFilename}';
+import { importFn } from '${virtualStoriesFilename}';
 
 ${getPreviewAnnotationsFunction}
 

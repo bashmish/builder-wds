@@ -1,13 +1,15 @@
 import { normalizeStories } from '@storybook/core-common';
 import type { CoreConfig, Options } from '@storybook/types';
-import { virtualAppPath } from './virtual-paths';
+import { readFile } from 'fs-extra';
+import { virtualAppFilename } from './virtual-file-names';
 
 export type PreviewHtml = string | undefined;
 
-export async function transformIframeHtml(
-  iframeHtmlTemplate: string,
-  options: Options,
-): Promise<string> {
+export async function generateIframeHtml(options: Options): Promise<string> {
+  const iframeHtmlTemplate = await readFile(
+    require.resolve('../static/iframe-template.html'),
+    'utf-8',
+  );
   const { configType, features, presets, serverChannelUrl } = options;
   const frameworkOptions = await presets.apply<Record<string, any> | null>('frameworkOptions');
   const headHtmlSnippet = await presets.apply<PreviewHtml>('previewHead');
@@ -37,6 +39,6 @@ export async function transformIframeHtml(
       .replace(`'[SERVER_CHANNEL_URL HERE]'`, JSON.stringify(serverChannelUrl))
       .replace('<!-- [HEAD HTML SNIPPET HERE] -->', headHtmlSnippet || '')
       .replace('<!-- [BODY HTML SNIPPET HERE] -->', bodyHtmlSnippet || '')
-      .replace(`[APP MODULE SRC HERE]`, virtualAppPath)
+      .replace(`[APP MODULE SRC HERE]`, virtualAppFilename)
   );
 }
