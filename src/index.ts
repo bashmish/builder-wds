@@ -27,11 +27,11 @@ const wdsPluginPrebundleModules = fromRollup(rollupPluginPrebundleModules);
 const wdsPluginStorybookBuilder = fromRollup(rollupPluginStorybookBuilder);
 
 export type StorybookConfigWds = StorybookConfigBase & {
-  wdsFinal: (
+  wdsFinal?: (
     config: DevServerConfig,
     options: Options,
   ) => DevServerConfig | Promise<DevServerConfig>;
-  rollupFinal: (config: RollupOptions, options: Options) => RollupOptions | Promise<RollupOptions>;
+  rollupFinal?: (config: RollupOptions, options: Options) => RollupOptions | Promise<RollupOptions>;
 };
 
 // Storybook's Stats are optional Webpack related property
