@@ -11,8 +11,9 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "build": "tsc",
-    "build:watch": "tsc --watch"
+    "build": "npm run build:clean && tsc",
+    "build:clean": "rm -f ./tsconfig.tsbuildinfo && rm -rf ./dist",
+    "build:watch": "npm run build:clean && tsc --watch"
   },
   "dependencies": {
     "@chialab/esbuild-plugin-commonjs": "^0.17.2",
