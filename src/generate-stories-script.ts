@@ -33,9 +33,7 @@ async function toImportFn(stories: string[]) {
       logger.warn(`Cannot process ${ext} file with storyStoreV7: ${relativePath}`);
     }
 
-    return `  '${toImportPath(
-      relativePath,
-    )}': async () => import('${process.cwd()}/${relativePath}')`;
+    return `  '${toImportPath(relativePath)}': () => import('${process.cwd()}/${relativePath}')`;
   });
 
   return `
@@ -43,7 +41,7 @@ const importers = {
 ${objectEntries.join(',\n')}
 };
 
-export async function importFn(path) {
+export function importFn(path) {
   return importers[path]();
 }
   `.trim();
