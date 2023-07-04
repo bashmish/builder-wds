@@ -57,15 +57,14 @@ Follow the [official storybook docs](https://storybook.js.org/) for the configur
 
 ### Configuring dev server
 
-The builder implements `storybook dev` command and comes with a default `@web/dev-server` configuration which adheres to browser standards and supports essential plugins of the storybook ecosystem.
+The builder implements the `storybook dev` command and comes with a default `@web/dev-server` configuration which adheres to browser standards and supports essential plugins of the storybook ecosystem.
 
 When storybook is loaded, the default config gets automatically merged with the project configuration file (`web-dev-server.config.{mjs,cjs,js}`) if present.
 This is needed to ensure that the same configuration is used for application, feature or design system you are building.
 
 #### wdsFinal hook
 
-Sometimes you might need to add a storybook specific configuration for dev server.
-There is `wdsFinal` hook for that.
+Sometimes you might need to add storybook specific configuration for dev server, you can use the `wdsFinal` hook for this.
 
 ```js
 // .storybook/main.js
@@ -92,14 +91,11 @@ When using rollup plugins make sure to [convert them to @web/dev-server ones](ht
 
 ### Configuring static build
 
-The builder implements `storybook build` command and comes with a default `rollup` configuration which adheres to browser standards and supports essential plugins of the storybook ecosystem.
-
-It's using [@web/rollup-plugin-html](https://modern-web.dev/docs/building/rollup-plugin-html/) under the hood.
+The builder implements the `storybook build` command and comes with a default `rollup` configuration which adheres to browser standards and supports essential plugins of the storybook ecosystem.
 
 #### rollupFinal hook
 
-Sometimes you might need to add an extra configuration for static build.
-There is `rollupFinal` hook for that.
+Sometimes you might need to add some extra configuration for the static build, you can use the `rollupFinal` hook for this.
 
 ```js
 // .storybook/main.js
@@ -112,6 +108,8 @@ const config = {
     builder: 'storybook-builder-wds',
   },
   async rollupFinal(config) {
+    // add extra configuration for rollup
+    // e.g. a new plugin
     config.plugins.push(polyfillsLoader({
       polyfills: {
         esModuleShims: true,
@@ -191,7 +189,7 @@ export default config;
 
 ### Rename "rollupConfig" => "rollupFinal"
 
-For consistency with other similar hooks in the Storybook ecosystem, including this builder's own `wdsFinal`, the rollup hook was renamed to `rollupFinal`.
+For consistency with other similar hooks in the storybook ecosystem, including this builder's own `wdsFinal`, the rollup hook was renamed to `rollupFinal`.
 
 ### CLI
 
