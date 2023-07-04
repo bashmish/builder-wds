@@ -1,4 +1,5 @@
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
+import { getBuilderOptions } from '@storybook/core-common';
 import { logger } from '@storybook/node-logger';
 import { globals } from '@storybook/preview/globals';
 import type { Builder, Options, StorybookConfig as StorybookConfigBase } from '@storybook/types';
@@ -32,6 +33,13 @@ export type StorybookConfigWds = StorybookConfigBase & {
     options: Options,
   ) => DevServerConfig | Promise<DevServerConfig>;
   rollupFinal?: (config: RollupOptions, options: Options) => RollupOptions | Promise<RollupOptions>;
+};
+
+export type BuilderOptions = {
+  /**
+   * Path to @web/dev-server config file, relative to CWD.
+   */
+  wdsConfigPath?: string;
 };
 
 // Storybook's Stats are optional Webpack related property
@@ -74,7 +82,8 @@ export const start: WdsBuilder['start'] = async ({ startTime, options, router })
     ],
   };
 
-  const wdsUserConfig = await readFileConfig();
+  const { wdsConfigPath } = await getBuilderOptions<BuilderOptions>(options);
+  const wdsUserConfig = await readFileConfig(wdsConfigPath);
 
   const wdsFinalConfig = await options.presets.apply<DevServerConfig>(
     'wdsFinal',

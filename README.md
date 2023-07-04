@@ -59,8 +59,34 @@ Follow the [official storybook docs](https://storybook.js.org/) for the configur
 
 The builder implements the `storybook dev` command and comes with a default `@web/dev-server` configuration which adheres to browser standards and supports essential plugins of the storybook ecosystem.
 
-When storybook is loaded, the default config gets automatically merged with the project configuration file (`web-dev-server.config.{mjs,cjs,js}`) if present.
+#### Config file and wdsConfigPath
+
+When storybook is loaded, the builder's default `@web/dev-server` config gets automatically merged with the project's config file (`web-dev-server.config.{mjs,cjs,js}`) if present.
 This is needed to ensure that the same configuration is used for application, feature or design system you are building.
+
+Optionally you can configure a different path to this file using `framework.options.builder.wdsConfigPath`, relative to CWD:
+
+```js
+// .storybook/main.js
+/** @type { import('storybook-builder-wds').StorybookConfigWds } */
+const config = {
+  ...
+  framework: {
+    ...
+    options: {
+      builder: {
+        wdsConfigPath: 'storybook-wds.config.mjs',
+      },
+    },
+  },
+  core: {
+    builder: 'storybook-builder-wds',
+  },
+  ...
+};
+
+export default config;
+```
 
 #### wdsFinal hook
 
