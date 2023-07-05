@@ -2,20 +2,24 @@
 
 [Storybook builder](https://storybook.js.org/docs/web-components/builders/overview) powered by [@web/dev-server](https://modern-web.dev/docs/dev-server/overview/).
 
-# Install
+## Frameworks
+
+Currently we support Web Components via `storybook-web-components-wds`.
+
+## Install
 
 Install npm packages:
 
 ```bash
-npm install @web/dev-server storybook-builder-wds --save-dev
+npm install storybook-builder-wds storybook-web-components-wds --save-dev
 ```
 
 ## Setup
 
 Follow the [official storybook docs](https://storybook.js.org/) to setup storybook.
 
-You can choose Vite when asked for the builder in the init CLI.
-Later you can change it to `storybook-builder-wds` in the storybook main configuration file.
+You can choose Web Components and another builder when asked by the init CLI command.
+Later you can change the framework to `storybook-web-components-wds` in the storybook main configuration file.
 
 If you are migrating from the `@web/dev-server-storybook` plugin, please read the [migration guide](#migration) below.
 
@@ -25,24 +29,19 @@ When you finish the setup you'll have a standard storybook folder with configura
 
 ### Activating the builder
 
-You'll need to activate `storybook-builder-wds` manually.
-To do that change the following in `main.js`:
+Change the following in `main.js`:
 
-- set `config` type to `import('storybook-builder-wds').StorybookConfigWds`
-- set the `core.builder` setting to `'storybook-builder-wds'`
-- keep the `framework.name` (Vite won't be used as a builder, but the chosen framework, e.g. `web-components`, will be inherited from this setting)
+- set `config` type to `import('storybook-web-components-wds').StorybookConfig`
+- set the `framework.name` to `'storybook-web-components-wds'`
 
 ```js
 // .storybook/main.js
 
-/** @type { import('storybook-builder-wds').StorybookConfigWds } */
+/** @type { import('storybook-web-components-wds').StorybookConfig } */
 const config = {
   ...
   framework: {
-    name: '@storybook/web-components-vite',
-  },
-  core: {
-    builder: 'storybook-builder-wds',
+    name: 'storybook-web-components-wds',
   },
   ...
 };
@@ -68,19 +67,17 @@ Optionally you can configure a different path to this file using `framework.opti
 
 ```js
 // .storybook/main.js
-/** @type { import('storybook-builder-wds').StorybookConfigWds } */
+
+/** @type { import('storybook-web-components-wds').StorybookConfig } */
 const config = {
   ...
   framework: {
-    ...
+    name: 'storybook-web-components-wds',
     options: {
       builder: {
         wdsConfigPath: 'storybook-wds.config.mjs',
       },
     },
-  },
-  core: {
-    builder: 'storybook-builder-wds',
   },
   ...
 };
@@ -94,11 +91,12 @@ Sometimes you might need to add storybook specific configuration for dev server,
 
 ```js
 // .storybook/main.js
-/** @type { import('storybook-builder-wds').StorybookConfigWds } */
+
+/** @type { import('storybook-web-components-wds').StorybookConfig } */
 const config = {
   ...
-  core: {
-    builder: 'storybook-builder-wds',
+  framework: {
+    name: 'storybook-web-components-wds',
   },
   async wdsFinal(config) {
     // add storybook specific configuration for @web/dev-server
@@ -127,11 +125,11 @@ Sometimes you might need to add some extra configuration for the static build, y
 // .storybook/main.js
 import polyfillsLoader from '@web/rollup-plugin-polyfills-loader';
 
-/** @type { import('storybook-builder-wds').StorybookConfigWds } */
+/** @type { import('storybook-web-components-wds').StorybookConfig } */
 const config = {
   ...
-  core: {
-    builder: 'storybook-builder-wds',
+  framework: {
+    name: 'storybook-web-components-wds',
   },
   async rollupFinal(config) {
     // add extra configuration for rollup
@@ -175,7 +173,7 @@ Then proceed with the `upgrade` script and follow it's interactive process:
 npx storybook@latest upgrade
 ```
 
-Then [activate the storybook-builder-wds](#activating-the-builder) in the main storybook configuration.
+Then [activate the builder](#activating-the-builder) in the main storybook configuration.
 
 ### Uninstall old packages
 
@@ -199,7 +197,7 @@ Then register them in the storybook main configuration:
 ```js
 // .storybook/main.js
 
-/** @type { import('storybook-builder-wds').StorybookConfigWds } */
+/** @type { import('storybook-web-components-wds').StorybookConfig } */
 const config = {
   ...
   addons: [
