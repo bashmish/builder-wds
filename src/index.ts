@@ -15,7 +15,6 @@ import { OutputOptions, RollupBuild, RollupOptions, rollup } from 'rollup';
 import rollupPluginExternalGlobals from 'rollup-plugin-external-globals';
 import { generateIframeHtml } from './generate-iframe-html';
 import { getNodeModuleDir } from './get-node-module-dir';
-import { koaToExpress } from './koa-to-express';
 import { readFileConfig } from './read-file-config';
 import {
   PREBUNDLED_MODULES_DIR,
@@ -117,8 +116,7 @@ export const start: WdsBuilder['start'] = async ({ startTime, options, router })
     config: wdsFinalConfig,
   });
 
-  // TODO: consider using proxy instead of middleware
-  router.use(koaToExpress(wdsServer.koaApp));
+  router.use(wdsServer.koaApp.callback());
 
   return {
     bail,
