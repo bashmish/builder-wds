@@ -1,3 +1,13 @@
+## [0.0.4](https://github.com/bashmish/storybook-builder-wds/compare/0.0.3...0.0.4) (2023-07-06)
+
+
+### Bug Fixes
+
+* do not log wds start message next to storybook's ([220c4b2](https://github.com/bashmish/storybook-builder-wds/commit/220c4b242409ece0d5d7301c5540bccc0c2007b6))
+* remove unused dependencies ([e9480a0](https://github.com/bashmish/storybook-builder-wds/commit/e9480a00200b295838de460fbe6c28dc9f8896e5))
+* require latest rollup adapter with fix for buildStart await ([e5c2e6b](https://github.com/bashmish/storybook-builder-wds/commit/e5c2e6b25193e03450790b73ac9c901a50d5182e))
+* use koa's callback to connect to express ([6a39b66](https://github.com/bashmish/storybook-builder-wds/commit/6a39b66524f9e72b0a4cf5532353762e0271ad55))
+
 ## [0.0.3](https://github.com/bashmish/storybook-builder-wds/compare/0.0.2...0.0.3) (2023-07-04)
 
 
