@@ -113,6 +113,7 @@ export const start: WdsBuilder['start'] = async ({ startTime, options, router })
     readFileConfig: false,
     readCliArgs: false,
     autoExitProcess: false,
+    logStartMessage: false,
     config: wdsFinalConfig,
   });
 
