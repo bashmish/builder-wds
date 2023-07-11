@@ -1,3 +1,10 @@
+## [0.1.0](https://github.com/bashmish/storybook-builder-wds/compare/0.0.4...0.1.0) (2023-07-11)
+
+
+### Features
+
+* run wds in middleware mode ([#8](https://github.com/bashmish/storybook-builder-wds/issues/8)) ([5926c98](https://github.com/bashmish/storybook-builder-wds/commit/5926c9876a6225ce136528f723239d8645774db5))
+
 ## [0.0.4](https://github.com/bashmish/storybook-builder-wds/compare/0.0.3...0.0.4) (2023-07-06)
 
 
