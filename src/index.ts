@@ -7,7 +7,6 @@ import { DevServerConfig, mergeConfigs, startDevServer } from '@web/dev-server';
 import type { DevServer } from '@web/dev-server-core';
 import { fromRollup } from '@web/dev-server-rollup';
 import { rollupPluginHTML } from '@web/rollup-plugin-html';
-import detectFreePort from 'detect-port';
 import express from 'express';
 import * as fs from 'fs-extra';
 import { join, parse, resolve } from 'path';
@@ -61,8 +60,6 @@ export const start: WdsBuilder['start'] = async ({ startTime, options, router })
 
   const env = await options.presets.apply<Record<string, string>>('env');
 
-  const freePort: number = await detectFreePort();
-
   const wdsStorybookConfig: DevServerConfig = {
     nodeResolve: true,
     plugins: [
@@ -87,8 +84,6 @@ export const start: WdsBuilder['start'] = async ({ startTime, options, router })
   const wdsFinalConfig = await options.presets.apply<DevServerConfig>(
     'wdsFinal',
     mergeConfigs(wdsUserConfig, wdsStorybookConfig, {
-      // force using dynamically allocated port
-      port: freePort,
       // reset local config "open" as it should not be used for storybook specific configuration
       open: false,
     }),
@@ -106,6 +101,11 @@ export const start: WdsBuilder['start'] = async ({ startTime, options, router })
     const port = options.port;
     wdsFinalConfig.open = `${protocol}://${host}:${port}${wdsFinalConfig.open}`;
   }
+
+  // setup middleware mode
+  wdsFinalConfig.middlewareMode = true;
+  wdsFinalConfig.port = undefined;
+  wdsFinalConfig.hostname = undefined;
 
   wdsServer = await startDevServer({
     // we load and merge configs manually
